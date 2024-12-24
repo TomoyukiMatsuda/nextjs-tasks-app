@@ -1,7 +1,9 @@
-import { User } from '@prisma/client';
+import { User as CustomUser } from '@prisma/client';
 
-declare module 'express-serve-static-core' {
-  interface Request {
-    user?: Omit<User, 'hashedPassword'>;
+declare global {
+  namespace Express {
+    export interface Request {
+      user?: CustomUser;
+    }
   }
 }
