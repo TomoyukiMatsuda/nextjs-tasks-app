@@ -15,7 +15,7 @@ import {
 import { Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { TodoService } from './todo.service';
-import { Task } from '@prisma/client';
+import { Task, User } from '@prisma/client';
 import { CreateTaskDto } from './dto/create-task-dto';
 
 @UseGuards(AuthGuard('jwt'))
@@ -25,7 +25,7 @@ export class TodoController {
 
   @Get()
   getTasks(@Req() req: Request): Promise<Task[]> {
-    return this.todoService.getTasks(req.user.id);
+    return this.todoService.getTasks((req.user as User).id);
   }
 
   @Get(':id')
@@ -35,14 +35,14 @@ export class TodoController {
   ): Promise<Task> {
     return this.todoService.getTaskById({
       id: taskId,
-      userId: req.user.id,
+      userId: req.user.id, // npm run start:dev で terminal 上でエラーが出る
     });
   }
 
   @Post()
   createTask(@Req() req: Request, @Body() dto: CreateTaskDto): Promise<Task> {
     return this.todoService.createTask({
-      userId: req.user.id,
+      userId: (req.user as User).id,
       dto,
     });
   }
@@ -55,7 +55,7 @@ export class TodoController {
   ): Promise<Task> {
     return this.todoService.updateTask({
       id: taskId,
-      userId: req.user.id,
+      userId: (req.user as User).id,
       dto,
     });
   }
@@ -65,10 +65,10 @@ export class TodoController {
   deleteTask(
     @Req() req: Request,
     @Param('id', ParseIntPipe) taskId: number,
-  ): Promise<Task> {
+  ): Promise<void> {
     return this.todoService.deleteTask({
       id: taskId,
-      userId: req.user.id,
+      userId: (req.user as User).id,
     });
   }
 }
